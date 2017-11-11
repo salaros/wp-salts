@@ -1,0 +1,24 @@
+{
+  "name"        : "salaros/wp-salts",
+  "description" : "Generate salts for your WordPress installation",
+  "type"        : "library",
+  "homepage"    : "https://github.com/salaros/wp-salts",
+  "license"     : "MIT",
+  "require" : {
+    "php"                   : ">=5.4",
+    "ircmaxell/random-lib"  : "^1.2.0"
+  },
+  "authors"    : [
+    {
+      "name"    : "Zhmayev Yaroslav",
+      "email"   : "salaros@salaros.com",
+      "homepage": "https://salaros.com",
+      "role"    : "Developer"
+    }
+  ],
+  "autoload" : {
+    "psr-4" : {
+      "Salaros\\WordPress\\" : "src/"
+    }
+  }
+}

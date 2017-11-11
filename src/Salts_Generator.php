@@ -14,7 +14,7 @@ class Salts_Generator
 	*
 	* @var array
 	*/
-	const SALT_SPECS = [
+	const DEFAULT_SALT_SPECS = [
 		'AUTH_KEY'          => 64,
 		'SECURE_AUTH_KEY'   => 64,
 		'LOGGED_IN_KEY'     => 64,
@@ -37,13 +37,13 @@ class Salts_Generator
 		}
 	}
 
-	public static function formatSalts( $salts, $outputFormat)
+	public static function formatSalts( $salts, $outputFormat )
 	{
 		$lineTemplate = false;
 		$lineEnd = PHP_EOL;
 		$nameTransformFunc = 'strtoupper';
 
-		switch ( $outputFormat) {
+		switch ( $outputFormat ) {
 			case 'env':
 				$lineTemplate = "%s='%s'";
 				$lineEnd = "\n";
@@ -70,14 +70,43 @@ class Salts_Generator
 		return $formatted;
 	}
 
-	public static function generateSalts()
+	public static function generateSalts( array $saltSpecs = null )
 	{
+		$saltSpecs = $saltSpecs ?: [];
+		$saltSpecs = ( ! is_assoc_array( $saltSpecs ) )
+			? array_fill_keys( $saltSpecs, '0' )
+			: $saltSpecs;
+		$saltSpecs = array_merge( self::DEFAULT_SALT_SPECS, $saltSpecs );
+
 		$factory = new Factory();
 		$generator = $factory->getGenerator( new Strength( Strength::MEDIUM ) );
 		$salts = [];
 		array_map( function ( $key, $length ) use ( &$salts, $generator ) {
+			$length = intval( $length ) ?: 64;
 			$salts[ $key ] = $generator->generateString( $length, self::ALL_CHARACTERS );
-		}, array_keys( self::SALT_SPECS ), self::SALT_SPECS );
+		}, array_keys( $saltSpecs ), $saltSpecs );
 		return $salts;
+	}
+}
+
+if (!function_exists('is_assoc_array')) {
+
+	/**
+	 * Checks if an array is associative or not
+	 * @param  string  Array to test
+	 * @return boolean Returns true in a given array is associative and false if it's not
+	 */
+	function is_assoc_array(array $array)
+	{
+		if (empty($array) || !is_array($array)) {
+			return false;
+		}
+
+		foreach (array_keys($array) as $key) {
+			if (!is_int($key)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

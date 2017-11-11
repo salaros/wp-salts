@@ -2,7 +2,6 @@
 {
     // PHP Mess Detector settings
 	"phpmd.enabled": true,
-    "phpmd.validate.rulesetsFile": ".vscode/phpmd.xml",
 	"phpmd.validate.rulesets": "cleancode,codesize,controversial,design,naming,unusedcode",
 
     // PHP CodeSniffer settings

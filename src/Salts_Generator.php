@@ -5,7 +5,8 @@ namespace Salaros\WordPress;
 use SecurityLib\Strength;
 use RandomLib\Factory;
 
-class Salts_Generator {
+class Salts_Generator
+{
 	const ALL_CHARACTERS = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_ []{}<>~`+=,.;:/?|!@#$%^&*()';
 
 	/**
@@ -25,49 +26,52 @@ class Salts_Generator {
 		'WP_CACHE_KEY_SALT' => 32,
 	];
 
-	public static function write_to_file( $file_name, $content, $file_flags = 0 ) {
-		$file_flags = $file_flags ?: ( file_exists( $file_name ) ) ? FILE_APPEND : 0;
+	public static function writeToFile( $fileName, $content, $fileFlags = 0 )
+	{
+		$fileFlags = $fileFlags ?: ( file_exists( $fileName ) ) ? FILE_APPEND : 0;
 
 		try {
-			return file_put_contents( $file_name, $content, $file_flags );
+			return file_put_contents( $fileName, $content, $fileFlags );
 		} catch ( \Exception $ex ) {
 			return false;
 		}
 	}
 
-	public static function format_data( $data, $format ) {
-		$template = false;
-		$line_end = PHP_EOL;
-		$call_func = 'strtoupper';
+	public static function formatSalts( $salts, $outputFormat)
+	{
+		$lineTemplate = false;
+		$lineEnd = PHP_EOL;
+		$nameTransformFunc = 'strtoupper';
 
-		switch ( $format ) {
+		switch ( $outputFormat) {
 			case 'env':
-				$template = "%s='%s'";
-				$line_end = "\n";
+				$lineTemplate = "%s='%s'";
+				$lineEnd = "\n";
 				break;
 
 			case 'yaml':
-				$call_func = 'strtolower';
-				$template = '%s: "%s"';
+				$nameTransformFunc = 'strtolower';
+				$lineTemplate = '%s: "%s"';
 				break;
 
 			case 'php':
 			default:
-				$template = "define( '%s', '%s' );";
+				$lineTemplate = "define( '%s', '%s' );";
 				break;
 		}
 
-		$formatted = array_map(function ( $name, $salt ) use ( $template, $call_func ) {
-			$name = call_user_func( $call_func, $name );
-			return sprintf( $template, $name, $salt );
-		}, array_keys( $data ), $data );
-		$formatted = implode( $line_end, $formatted );
-		$formatted = $line_end . $formatted . $line_end;
+		$formatted = array_map(function ( $name, $salt ) use ( $lineTemplate, $nameTransformFunc ) {
+			$name = call_user_func( $nameTransformFunc, $name );
+			return sprintf( $lineTemplate, $name, $salt );
+		}, array_keys( $salts ), $salts );
+		$formatted = implode( $lineEnd, $formatted );
+		$formatted = $lineEnd . $formatted . $lineEnd;
 
 		return $formatted;
 	}
 
-	public static function generate_salts() {
+	public static function generateSalts()
+	{
 		$factory = new Factory();
 		$generator = $factory->getGenerator( new Strength( Strength::MEDIUM ) );
 		$salts = [];

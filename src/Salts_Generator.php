@@ -37,8 +37,14 @@ class Salts_Generator
 		}
 	}
 
-	public static function formatSalts( $salts, $outputFormat )
+	public static function formatSalts( array $salts, $outputFormat )
 	{
+		if ( ! is_assoc_array( $salts ) ) {
+			throw new \InvalidArgumentException(
+				"Salts must be an associative array, e.g [ 'MY_SALT' => '3D.c=X7W}CCKB^' ]"
+			);
+		}
+
 		$lineTemplate = false;
 		$lineEnd = PHP_EOL;
 		$nameTransformFunc = 'strtoupper';
@@ -70,13 +76,13 @@ class Salts_Generator
 		return $formatted;
 	}
 
-	public static function generateSalts( array $saltSpecs = null )
+	public static function generateSalts( array $additionalSalts = null )
 	{
-		$saltSpecs = $saltSpecs ?: [];
-		$saltSpecs = ( ! is_assoc_array( $saltSpecs ) )
-			? array_fill_keys( $saltSpecs, '0' )
-			: $saltSpecs;
-		$saltSpecs = array_merge( self::DEFAULT_SALT_SPECS, $saltSpecs );
+		$additionalSalts = $additionalSalts ?: [];
+		$additionalSalts = ( ! is_assoc_array( $additionalSalts ) )
+			? array_fill_keys( $additionalSalts, '0' )
+			: $additionalSalts;
+		$saltSpecs = array_merge( self::DEFAULT_SALT_SPECS, $additionalSalts );
 
 		$factory = new Factory();
 		$generator = $factory->getGenerator( new Strength( Strength::MEDIUM ) );
@@ -86,6 +92,13 @@ class Salts_Generator
 			$salts[ $key ] = $generator->generateString( $length, self::ALL_CHARACTERS );
 		}, array_keys( $saltSpecs ), $saltSpecs );
 		return $salts;
+	}
+
+	public static function generateFormattedSalts( $outputFormat, array $additionalSalts = null )
+	{
+		$salts = self::generateSalts( $additionalSalts );
+		$formatted = self::formatSalts( $salts, $outputFormat );
+		return $formatted;
 	}
 }
 

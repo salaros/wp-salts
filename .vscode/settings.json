@@ -1,11 +1,11 @@
 // Place your settings in this file to overwrite default and user settings.
 {
     // PHP Mess Detector settings
-	"phpmd.rules": "cleancode,codesize,controversial,design,naming,unusedcode",
+	"phpmd.rules": ".vscode/phpmd.xml",
 
     // PHP CodeSniffer settings
     "phpcs.enable": true,
-    "phpcs.standard": "PSR2",
+    "phpcs.standard": ".vscode/phpcs.xml",
 
     // Exclude files from File Explorer
     "files.exclude": {

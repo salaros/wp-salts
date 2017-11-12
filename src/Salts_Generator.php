@@ -26,10 +26,10 @@ class Salts_Generator
 		'WP_CACHE_KEY_SALT' => 32,
 	];
 
-	public static function writeToFile( $outputFormat, $fileName, array $salts, $fileFlags = 0 )
+	public static function writeToFile( $outputFormat, $fileName, array $additionalSalts = null, $fileFlags = 0 )
 	{
 		$fileFlags = $fileFlags ?: ( file_exists( $fileName ) ) ? FILE_APPEND : 0;
-		$formatted = self::generateFormattedSalts( $outputFormat, $salts );
+		$formatted = self::generateFormattedSalts( $outputFormat, $additionalSalts );
 
 		try {
 			return file_put_contents( $fileName, $formatted, $fileFlags );
@@ -89,6 +89,9 @@ class Salts_Generator
 		$generator = $factory->getGenerator( new Strength( Strength::MEDIUM ) );
 		$salts = [];
 		array_map( function ( $key, $length ) use ( &$salts, $generator ) {
+			if ( empty( $key ) ) {
+				return;
+			}
 			$length = intval( $length ) ?: 64;
 			$salts[ $key ] = $generator->generateString( $length, self::ALL_CHARACTERS );
 		}, array_keys( $saltSpecs ), $saltSpecs );

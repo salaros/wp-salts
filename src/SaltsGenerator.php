@@ -15,14 +15,14 @@ class SaltsGenerator
     * @var array
     */
     const DEFAULT_SALT_SPECS = [
-        'AUTH_KEY'          => 64,
-        'SECURE_AUTH_KEY'   => 64,
-        'LOGGED_IN_KEY'     => 64,
-        'NONCE_KEY'         => 64,
-        'AUTH_SALT'         => 64,
-        'SECURE_AUTH_SALT'  => 64,
-        'LOGGED_IN_SALT'    => 64,
-        'NONCE_SALT'        => 64,
+        'AUTH_KEY',
+        'SECURE_AUTH_KEY',
+        'LOGGED_IN_KEY',
+        'NONCE_KEY',
+        'AUTH_SALT',
+        'SECURE_AUTH_SALT',
+        'LOGGED_IN_SALT',
+        'NONCE_SALT',
     ];
 
     public static function writeToFile($outputFormat, $fileName, array $additionalSalts = null, $fileFlags = 0)
@@ -83,18 +83,21 @@ class SaltsGenerator
         $additionalSalts = (! is_assoc_array($additionalSalts))
             ? array_fill_keys($additionalSalts, '0')
             : $additionalSalts;
-        $saltSpecs = array_merge(self::DEFAULT_SALT_SPECS, $additionalSalts);
+        $saltSpecs = array_merge(
+            array_fill_keys(self::DEFAULT_SALT_SPECS, '64'),
+            $additionalSalts
+        );
 
         $factory = new Factory();
         $generator = $factory->getGenerator(new Strength(Strength::MEDIUM));
         $salts = [];
-        array_map(function ($key, $length) use (&$salts, $generator) {
+        foreach ($saltSpecs as $key => $saltLength) {
             if (empty($key)) {
-                return;
+                continue;
             }
-            $length = intval($length) ?: 64;
-            $salts[ $key ] = $generator->generateString($length, self::ALL_CHARACTERS);
-        }, array_keys($saltSpecs), $saltSpecs);
+            $saltLength = intval($saltLength) ?: 64;
+            $salts[ $key ] = $generator->generateString($saltLength, self::ALL_CHARACTERS);
+        }
         return $salts;
     }
 

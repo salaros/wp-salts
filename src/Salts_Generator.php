@@ -26,18 +26,19 @@ class Salts_Generator
 		'WP_CACHE_KEY_SALT' => 32,
 	];
 
-	public static function writeToFile( $fileName, $content, $fileFlags = 0 )
+	public static function writeToFile( $outputFormat, $fileName, array $salts, $fileFlags = 0 )
 	{
 		$fileFlags = $fileFlags ?: ( file_exists( $fileName ) ) ? FILE_APPEND : 0;
+		$formatted = self::generateFormattedSalts( $outputFormat, $salts );
 
 		try {
-			return file_put_contents( $fileName, $content, $fileFlags );
+			return file_put_contents( $fileName, $formatted, $fileFlags );
 		} catch ( \Exception $ex ) {
 			return false;
 		}
 	}
 
-	public static function formatSalts( array $salts, $outputFormat )
+	public static function formatSalts( $outputFormat, array $salts )
 	{
 		if ( ! is_assoc_array( $salts ) ) {
 			throw new \InvalidArgumentException(
@@ -97,7 +98,7 @@ class Salts_Generator
 	public static function generateFormattedSalts( $outputFormat, array $additionalSalts = null )
 	{
 		$salts = self::generateSalts( $additionalSalts );
-		$formatted = self::formatSalts( $salts, $outputFormat );
+		$formatted = self::formatSalts( $outputFormat, $salts );
 		return $formatted;
 	}
 }

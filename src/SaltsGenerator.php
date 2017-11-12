@@ -28,9 +28,9 @@ class SaltsGenerator
 
     public static function writeToFile($outputFormat, $fileName, array $additionalSalts = null, $fileFlags = 0)
     {
-        $fileFlags = $fileFlags ?: (file_exists($fileName)) ? FILE_APPEND : 0;
+        $outputFormat = $outputFormat ?: self::guessFileFormat($fileName);
         $formatted = self::generateFormattedSalts($outputFormat, $additionalSalts);
-
+        $fileFlags = $fileFlags ?: (file_exists($fileName)) ? FILE_APPEND : 0;
         try {
             return file_put_contents($fileName, $formatted, $fileFlags);
         } catch (\Exception $ex) {
@@ -57,6 +57,7 @@ class SaltsGenerator
                 break;
 
             case 'yaml':
+            case 'yml':
                 $nameTransformFunc = 'strtolower';
                 $lineTemplate = '%s: "%s"';
                 break;
@@ -103,6 +104,34 @@ class SaltsGenerator
         $salts = self::generateSalts($additionalSalts);
         $formatted = self::formatSalts($outputFormat, $salts);
         return $formatted;
+    }
+
+    public static function guessFileFormat($fileName)
+    {
+        $fileInfo = pathinfo($fileName);
+        $fileExtension = (isset($fileInfo['extension']))
+            ? strtolower($fileInfo['extension'])
+            : '';
+
+        if (empty($fileExtension)) {
+            return null;
+        }
+
+        if ("env" === substr($fileExtension, -strlen('env'))) {
+            return 'env';
+        } elseif (substr($fileExtension, -strlen('yml')) === 'yml') {
+            return 'yaml';
+        } elseif (substr($fileExtension, -strlen('php')) === 'php') {
+            return 'php';
+        } elseif (false !== strpos($fileName, '.env')) {
+            return 'env';
+        } elseif (false !== strpos($fileName, '.yml')) {
+            return 'yaml';
+        } elseif (false !== strpos($fileName, '.php')) {
+            return 'php';
+        }
+
+        return null;
     }
 }
 

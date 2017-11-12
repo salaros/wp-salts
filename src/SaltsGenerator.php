@@ -5,7 +5,7 @@ namespace Salaros\WordPress;
 use SecurityLib\Strength;
 use RandomLib\Factory;
 
-class Salts_Generator
+class SaltsGenerator
 {
     const ALL_CHARACTERS = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_ []{}<>~`+=,.;:/?|!@#$%^&*()';
 

@@ -23,7 +23,6 @@ class SaltsGenerator
         'SECURE_AUTH_SALT'  => 64,
         'LOGGED_IN_SALT'    => 64,
         'NONCE_SALT'        => 64,
-        'WP_CACHE_KEY_SALT' => 32,
     ];
 
     public static function writeToFile($outputFormat, $fileName, array $additionalSalts = null, $fileFlags = 0)

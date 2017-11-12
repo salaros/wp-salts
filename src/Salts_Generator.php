@@ -26,21 +26,21 @@ class Salts_Generator
         'WP_CACHE_KEY_SALT' => 32,
     ];
 
-    public static function writeToFile( $outputFormat, $fileName, array $additionalSalts = null, $fileFlags = 0 )
+    public static function writeToFile($outputFormat, $fileName, array $additionalSalts = null, $fileFlags = 0)
     {
-        $fileFlags = $fileFlags ?: ( file_exists( $fileName ) ) ? FILE_APPEND : 0;
-        $formatted = self::generateFormattedSalts( $outputFormat, $additionalSalts );
+        $fileFlags = $fileFlags ?: (file_exists($fileName)) ? FILE_APPEND : 0;
+        $formatted = self::generateFormattedSalts($outputFormat, $additionalSalts);
 
         try {
-            return file_put_contents( $fileName, $formatted, $fileFlags );
-        } catch ( \Exception $ex ) {
+            return file_put_contents($fileName, $formatted, $fileFlags);
+        } catch (\Exception $ex) {
             return false;
         }
     }
 
-    public static function formatSalts( $outputFormat, array $salts )
+    public static function formatSalts($outputFormat, array $salts)
     {
-        if ( ! is_assoc_array( $salts ) ) {
+        if (! is_assoc_array($salts)) {
             throw new \InvalidArgumentException(
                 "Salts must be an associative array, e.g [ 'MY_SALT' => '3D.c=X7W}CCKB^' ]"
             );
@@ -50,7 +50,7 @@ class Salts_Generator
         $lineEnd = PHP_EOL;
         $nameTransformFunc = 'strtoupper';
 
-        switch ( $outputFormat ) {
+        switch ($outputFormat) {
             case 'env':
                 $lineTemplate = "%s='%s'";
                 $lineEnd = "\n";
@@ -63,45 +63,45 @@ class Salts_Generator
 
             case 'php':
             default:
-                $lineTemplate = "define( '%s', '%s' );";
+                $lineTemplate = "define('%s', '%s');";
                 break;
         }
 
-        $formatted = array_map(function ( $name, $salt ) use ( $lineTemplate, $nameTransformFunc ) {
-            $name = call_user_func( $nameTransformFunc, $name );
-            return sprintf( $lineTemplate, $name, $salt );
-        }, array_keys( $salts ), $salts );
-        $formatted = implode( $lineEnd, $formatted );
+        $formatted = array_map(function ($name, $salt) use ($lineTemplate, $nameTransformFunc) {
+            $name = call_user_func($nameTransformFunc, $name);
+            return sprintf($lineTemplate, $name, $salt);
+        }, array_keys($salts), $salts);
+        $formatted = implode($lineEnd, $formatted);
         $formatted = $lineEnd . $formatted . $lineEnd;
 
         return $formatted;
     }
 
-    public static function generateSalts( array $additionalSalts = null )
+    public static function generateSalts(array $additionalSalts = null)
     {
         $additionalSalts = $additionalSalts ?: [];
-        $additionalSalts = ( ! is_assoc_array( $additionalSalts ) )
-            ? array_fill_keys( $additionalSalts, '0' )
+        $additionalSalts = (! is_assoc_array($additionalSalts))
+            ? array_fill_keys($additionalSalts, '0')
             : $additionalSalts;
-        $saltSpecs = array_merge( self::DEFAULT_SALT_SPECS, $additionalSalts );
+        $saltSpecs = array_merge(self::DEFAULT_SALT_SPECS, $additionalSalts);
 
         $factory = new Factory();
-        $generator = $factory->getGenerator( new Strength( Strength::MEDIUM ) );
+        $generator = $factory->getGenerator(new Strength(Strength::MEDIUM));
         $salts = [];
-        array_map( function ( $key, $length ) use ( &$salts, $generator ) {
-            if ( empty( $key ) ) {
+        array_map(function ($key, $length) use (&$salts, $generator) {
+            if (empty($key)) {
                 return;
             }
-            $length = intval( $length ) ?: 64;
-            $salts[ $key ] = $generator->generateString( $length, self::ALL_CHARACTERS );
-        }, array_keys( $saltSpecs ), $saltSpecs );
+            $length = intval($length) ?: 64;
+            $salts[ $key ] = $generator->generateString($length, self::ALL_CHARACTERS);
+        }, array_keys($saltSpecs), $saltSpecs);
         return $salts;
     }
 
-    public static function generateFormattedSalts( $outputFormat, array $additionalSalts = null )
+    public static function generateFormattedSalts($outputFormat, array $additionalSalts = null)
     {
-        $salts = self::generateSalts( $additionalSalts );
-        $formatted = self::formatSalts( $outputFormat, $salts );
+        $salts = self::generateSalts($additionalSalts);
+        $formatted = self::formatSalts($outputFormat, $salts);
         return $formatted;
     }
 }
